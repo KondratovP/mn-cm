@@ -1,1 +1,1 @@
-export * from '../../backend/models/types/index';
+export * from '../../server/models/types/index';

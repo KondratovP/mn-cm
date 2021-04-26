@@ -1,19 +1,24 @@
 import { useMemo } from 'react';
-import { createStore, applyMiddleware, Store, combineReducers, AnyAction } from 'redux';
+import { createStore, applyMiddleware, combineReducers, Store } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import { appReducer } from './app';
+import thunk from 'redux-thunk';
+import { exchangeReducer } from "./exchange";
+import { productsReducer } from "./products";
+import { checkoutReducer } from "./checkout";
 
-let store;
+export let store: Store<any> | undefined;
 
 const reducers = {
-  appReducer,
+  exchangeReducer,
+  productsReducer,
+  checkoutReducer,
 };
 
-function initStore(initialState) {
+function initStore(initialState: any) {
   return createStore(
     combineReducers(reducers),
     initialState,
-    composeWithDevTools(applyMiddleware())
+    composeWithDevTools(applyMiddleware(thunk))
   );
 };
 
@@ -39,7 +44,7 @@ export const initializeStore = (preloadedState = {} as any) => {
   return _store
 }
 
-export function useStore(initialState) {
+export function useStore(initialState: any) {
   const store = useMemo(() => initializeStore(initialState), [initialState])
   return store
 }

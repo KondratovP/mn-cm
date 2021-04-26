@@ -42,8 +42,8 @@ export function checkoutRoutes<T extends Express = Express>(app: T) {
         product: OrderedProduct,
       } = JSON.parse(params);
       const existingOrder = getOrdersByUserId(userId);
-      if (dec) { existingOrder.decreaseProductInOrder(productId) }
-      existingOrder.addProductToOrder(product);
+      if (dec) { existingOrder!.decreaseProductInOrder(productId) }
+      existingOrder!.addProductToOrder(product);
       return res.status(200).send('PUT api/checkout - OK - Received a PUT HTTP method');
     } catch (error) {
       return res.status(500).send('PUT api/checkout server error. Received a PUT HTTP method');
@@ -56,7 +56,7 @@ export function checkoutRoutes<T extends Express = Express>(app: T) {
       const params = JSON.stringify(req.params);
       const { userId, productId }: { userId: string, productId: number } = JSON.parse(params);
       const existingOrder = getOrdersByUserId(userId);
-      existingOrder.decreaseProductInOrder(productId);
+      existingOrder!.decreaseProductInOrder(productId);
       return res.status(200).send('DELETE api/checkout - OK - Received a DELETE HTTP method');
     } catch (error) {
       return res.status(500).send('DELETE api/checkout server error. Received a DELETE HTTP method');

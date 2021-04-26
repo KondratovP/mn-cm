@@ -15,23 +15,26 @@ export namespace Exchange {
   };
 }
 
-let executer: NodeJS.Timeout;
+let executor: NodeJS.Timeout;
 
 const changeExchangeValueRandom = () => {
   const currentExchangeValue = Exchange.getCurrentExchangeValue();
-  const changeAmount = getRandomInRange(1, (currentExchangeValue - 1)) * 0.985;
+  const changeAmount = getRandomInRange(1, (currentExchangeValue - currentExchangeValue * 0.8)) * 0.985;
   const isIncrease = Math.round(Math.random());
-  const newValue: number = isIncrease ? (currentExchangeValue + changeAmount) : (currentExchangeValue - changeAmount);
-  Exchange.assignNewExchangeValue(newValue);
+  const newValue: number = currentExchangeValue > 350 && 99
+    || !isIncrease && currentExchangeValue > 31
+    ? (currentExchangeValue - changeAmount)
+    : (currentExchangeValue + changeAmount);
+  Exchange.assignNewExchangeValue(Number(newValue.toFixed(2)));
 }
 
 function scheduleUsdRateChange() {
-  const intervalMillisecondsValue: TIntervalMillisecondsValue = (20000 / getRandomInRange(50, 80));
-  executer = setInterval(() => changeExchangeValueRandom(), intervalMillisecondsValue);
+  const intervalMillisecondsValue: TIntervalMillisecondsValue = (20000 / getRandomInRange(10, 18));
+  executor = setInterval(() => changeExchangeValueRandom(), intervalMillisecondsValue);
 }
 
 function clearChangeInterval() {
-  clearInterval(executer);
+  clearInterval(executor);
 }
 
 function rescheduleChangeInterval() {
@@ -41,5 +44,9 @@ function rescheduleChangeInterval() {
   }, 100000);
 }
 
-scheduleUsdRateChange();
-rescheduleChangeInterval();
+function init() {
+  scheduleUsdRateChange();
+  rescheduleChangeInterval();
+}
+
+init();

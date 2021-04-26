@@ -3,8 +3,8 @@ import { IProductGroup, IProduct, TIncomingProduct, TProductNames } from "../typ
 import { onAvailableProductListUpdate } from "../../socket-handler";
 
 export class Products {
-  private allProducts: Array<IProduct>;
-  private availableGroups: Array<IProductGroup>;
+  private allProducts: Array<IProduct> = [];
+  private availableGroups: Array<IProductGroup> = [];
   private static names = getNames();
   private static products = getProducts();
   constructor() { }
@@ -13,13 +13,16 @@ export class Products {
     return ({
       usdPrice: product.C,
       quantity: product.P,
+      // @ts-ignore
       groupId: names[product.G],
+      // @ts-ignore
       productId: names[product.G]['B'][product.T],
+      // @ts-ignore
       groupName: names[product.G]['G'],
+      // @ts-ignore
       productTitle: names[product.G]['B'][product.T]['N'],
     });
   }
-
   private retrieveProducts() {
     const products = { ...Products.products };
     const names = { ...Products.names }

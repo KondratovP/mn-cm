@@ -3,7 +3,7 @@ import { TUserId, IUserOrder, OrderedProduct, TProductId } from "../types";
 
 export class UserOrder implements IUserOrder {
   public userId: TUserId;
-  products: Array<OrderedProduct>;
+  products: Array<OrderedProduct> = [];
 
   constructor(userId: TUserId) {
     this.userId = userId;
