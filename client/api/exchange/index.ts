@@ -1,15 +1,19 @@
 import { EXCHANGE_ENDPOINTS } from "client/consts/end-points";
-import axios from "../axios";
+import { AllowedHttpMethods, ArrayElement } from "common/utils/helper-types";
 
-export const getCurrentExchangeValue = async () => {
-  return await axios.get(EXCHANGE_ENDPOINTS.EXCHANGE_VALUE_GET).then(res => {
-    try {
-      const success = res && res.status === 200 && res.data;
-      const failure = res && res.status > 399 && res.status;
-      if (success) return res.data;
-      if (failure) throw new Error(`${res.status}`);
-    } catch (error) {
-      throw new Error(error);
-    }
-  });
-}
+export const GET_CURRENT_EXCHANGE_VALUE = 'GET_CURRENT_EXCHANGE_VALUE' as const;
+
+export const EXCHANGE_REQUEST_CONFIG_KEYS = [GET_CURRENT_EXCHANGE_VALUE] as const;
+
+type ConfigKeys = ArrayElement<typeof EXCHANGE_REQUEST_CONFIG_KEYS>;
+
+export const exchangeConfig = new Map<ConfigKeys, {
+  method: AllowedHttpMethods;
+  endpoint: (...args: any) => string;
+  data?: any;
+}>([
+  [GET_CURRENT_EXCHANGE_VALUE, {
+    method: 'get',
+    endpoint: () => EXCHANGE_ENDPOINTS.EXCHANGE_VALUE_GET
+  }],
+]);

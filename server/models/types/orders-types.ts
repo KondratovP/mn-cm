@@ -3,6 +3,9 @@ import { TProductId, TUserId } from "./product-types";
 export interface OrderedProduct {
   productId: number;
   quantity: number;
+  productTitle: string;
+  usdPrice: number;
+  groupId: number;
 }
 
 export interface IUserOrder {

@@ -1,19 +1,23 @@
 
 import { AnyAction } from "redux";
-import { IUserOrderState, USER_ORDER_ACTION_TYPES } from "./types";
+import { IUserOrderState, SET_USER_ORDER, UPDATE_USER_ORDER } from "./types";
 
 const initialState: IUserOrderState = {
-  userOrder: [],
+  userId: '',
+  products: [],
 };
-
-const { SET_USER_ORDER } = USER_ORDER_ACTION_TYPES;
 
 const checkoutReducer = (state = initialState, action: AnyAction): IUserOrderState => {
   switch (action.type) {
     case SET_USER_ORDER:
       return {
         ...state,
-        userOrder: action.payload
+        ...action.payload
+      }
+    case UPDATE_USER_ORDER:
+      return {
+        ...state,
+        products: action.payload
       }
     default:
       return state

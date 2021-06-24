@@ -1,76 +1,34 @@
 import { CHECKOUT_ENDPOINTS } from "client/consts/end-points";
-import { IProduct } from "common/types";
-import axios from "../axios";
-import { decreaseProductById, increaseProductById } from "../products";
+import { AllowedHttpMethods, ArrayElement } from "common/utils/helper-types";
 
-export const getOrderByUserId = async (currUserId: string) => {
-  const orderByIdEndpoint = CHECKOUT_ENDPOINTS.CHECKOUT_GET(currUserId);
-  return await axios.get(orderByIdEndpoint).then(res => {
-    try {
-      const success = res && res.status === 200 && res.data;
-      const failure = res && res.status > 399 && res.status;
-      if (success) return res.data;
-      if (failure) throw new Error(`${res.status}`);
-    } catch (error) {
-      throw new Error(error);
-    }
-  });
-}
+export const GET_ORDER_BY_USER_ID = 'GET_ORDER_BY_USER_ID' as const;
+export const CREATE_USER_ORDER = 'CREATE_USER_ORDER' as const;
+export const ADD_PRODUCT_TO_ORDER = 'ADD_PRODUCT_TO_ORDER' as const;
+export const DELETE_PRODUCT_FROM_ORDER = 'DELETE_PRODUCT_FROM_ORDER' as const;
 
-export const createUserOrder = async (userId: string) => {
-  const params = { userId };
-  return await axios.post(CHECKOUT_ENDPOINTS.CHECKOUT_CREATE_USER_ORDER, params).then(res => {
-    try {
-      const success = res && res.status === 200 && res.data;
-      const failure = res && res.status > 399 && res.status;
-      if (success) return res.status;
-      if (failure) throw new Error(`${res.status}`);
-    } catch (error) {
-      throw new Error(error);
-    }
-  });
-}
+export const CHECKOUT_REQUEST_CONFIG_KEYS = [GET_ORDER_BY_USER_ID, CREATE_USER_ORDER, ADD_PRODUCT_TO_ORDER, DELETE_PRODUCT_FROM_ORDER] as const;
 
-export const addProductToOrder = async (userId: string, productId: number, product: IProduct) => {
-  const params = {
-    userId,
-    productId,
-    product,
-    dec: false
-  };
-  return await axios.put(CHECKOUT_ENDPOINTS.CHECKOUT_ADD_PRODUCT, params).then(async (res) => {
-    try {
-      const success = res && res.status === 200;
-      const failure = res && res.status > 399 && res.status;
-      if (success) {
-        await decreaseProductById(productId);
-        return res.status;
-      }
-      if (failure) throw new Error(`${res.status}`);
-    } catch (error) {
-      throw new Error(error);
-    }
-  });
-}
+type ConfigKeys = ArrayElement<typeof CHECKOUT_REQUEST_CONFIG_KEYS>;
 
-export const deleteProductFromOrder = async (userId: string, productId: number, product: IProduct) => {
-  const params = {
-    userId,
-    productId,
-    product,
-    dec: true
-  };
-  return await axios.put(CHECKOUT_ENDPOINTS.CHECKOUT_DELETE_PRODUCT, params).then(async (res) => {
-    try {
-      const success = res && res.status === 200;
-      const failure = res && res.status > 399 && res.status;
-      if (success) {
-        await increaseProductById(productId);
-        return res.status;
-      }
-      if (failure) throw new Error(`${res.status}`);
-    } catch (error) {
-      throw new Error(error);
-    }
-  });
-}
+export const checkoutConfig = new Map<ConfigKeys, {
+  method: AllowedHttpMethods;
+  endpoint: (...args: any) => string;
+  data?: any;
+}>([
+  [CREATE_USER_ORDER, {
+    method: 'post',
+    endpoint: () => CHECKOUT_ENDPOINTS.CHECKOUT_CREATE_USER_ORDER
+  }],
+  [GET_ORDER_BY_USER_ID, {
+    method: 'get',
+    endpoint: (currUserId: string) => CHECKOUT_ENDPOINTS.CHECKOUT_GET(currUserId)
+  }],
+  [ADD_PRODUCT_TO_ORDER, {
+    method: "put",
+    endpoint: () => CHECKOUT_ENDPOINTS.CHECKOUT_ADD_PRODUCT,
+  }],
+  [DELETE_PRODUCT_FROM_ORDER, {
+    method: "put",
+    endpoint: () => CHECKOUT_ENDPOINTS.CHECKOUT_DELETE_PRODUCT,
+  }]
+]);

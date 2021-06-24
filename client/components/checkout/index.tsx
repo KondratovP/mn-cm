@@ -1,75 +1,67 @@
-import React from 'react';
-import { getCurrentCurrencyTitle } from '../../consts';
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Text,
-} from "@chakra-ui/react";
+import React from "react";
+import { useDispatch } from "react-redux";
+import { Box, Divider, Heading, Text, Container } from "@chakra-ui/react";
+import CheckoutProductItem from "./checkout-product-item";
+import { getCurrentUserOrder } from "client/store/checkout/actions";
+import { useUserOrderProductsSelector } from "client/store/checkout/selectors";
+import { useExchangeValueSelector } from "client/store/exchange/selectors";
+import { getCurrentUserId } from "client/consts/current-user";
 
-type TCheckoutOrder = any;
-
-interface ICheckoutProps {
-  order: TCheckoutOrder;
-  totalPrice: number;
-}
-
-const Checkout: React.FC<ICheckoutProps> = ({ order, totalPrice }) => {
-  const currentCurrencyShortTitle = getCurrentCurrencyTitle().short;
-
-  const renderHeader = () => (
-    <Thead >
-      <Tr >
-        <Th>Наименование товара и описание</Th>
-        <Th>Количество</Th>
-        <Th>Цена</Th>
-        <Th></Th>
-      </Tr>
-    </Thead>
-  );
-
-  const renderBody = () => (
-    <Tbody>
-      {
-        order.map(({ name, price, quantity }) => (
-          <Tr>
-            <Td className="product-item-name">
-              {name}
-            </Td>
-            <Td className="product-item-quantity">
-              {price}
-            </Td>
-            <Td className="product-item-price">
-              {quantity}
-            </Td>
-            <Td className="product-item-action">
-              <button>Удалить</button>
-            </Td>
-          </Tr>
-        ))
-      }
-
-    </Tbody>
-  );
+const CheckoutTotalCost: React.FC<{ totalCost: number }> = ({ totalCost }) => {
+  const exchangeValue = useExchangeValueSelector();
 
   return (
-    <div>
-      <Table>
-        {renderHeader()}
-        {renderBody()}
-      </Table>
+    <Text fontWeight="bold" fontSize="sm">
+      Общая Стоимость - {(totalCost * exchangeValue).toFixed(2)} руб
+    </Text>
+  );
+};
 
-      <div className="total-price">
-        <Text fontSize="md">
-          Общая стоимость:
-        </Text>
-        {totalPrice} {currentCurrencyShortTitle}
-      </div>
-    </div>
-  )
-}
+const Checkout: React.FC<{}> = ({}) => {
+  const userId = getCurrentUserId();
+  const products = useUserOrderProductsSelector();
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(getCurrentUserOrder(userId));
+  }, []);
+
+  return (
+    <Container maxW={"7xl"} p="12">
+      <Heading as="h1">Корзина</Heading>
+      <Box
+        marginTop={{ base: "1", sm: "5" }}
+        display="flex"
+        flexDirection="column"
+        alignItems="start"
+        width="100%"
+        marginBottom="23px"
+      >
+        <Divider orientation="horizontal" marginBottom="19px" />
+
+        {products?.map((product) => (
+          <CheckoutProductItem
+            product={product}
+            title={product.productTitle || "name"}
+            price={product.usdPrice || 13}
+            quantity={product.quantity || 1}
+            key={`${product.productId}-${Math.random()}`}
+          />
+        ))}
+
+        {products.length ? (
+          <CheckoutTotalCost
+            totalCost={products?.reduce(
+              (acc, product) => acc + product.usdPrice * product.quantity,
+              0
+            )}
+          />
+        ) : (
+          <div> корзина пуста </div>
+        )}
+      </Box>
+    </Container>
+  );
+};
 
 export default Checkout;

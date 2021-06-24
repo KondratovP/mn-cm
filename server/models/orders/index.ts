@@ -1,70 +1,32 @@
-import { onUserCheckoutOrderUpdate } from "../../socket-handler";
-import { TUserId, IUserOrder, OrderedProduct, TProductId } from "../types";
+import { GetCheckoutDTO_Req } from "common/types/api-interaction-interfaces";
+import { OrderedProduct } from "../types";
+import { findIndexOfProductById, updateProductQuantity } from "./helpers";
 
-export class UserOrder implements IUserOrder {
-  public userId: TUserId;
-  products: Array<OrderedProduct> = [];
-
-  constructor(userId: TUserId) {
-    this.userId = userId;
-  }
-
-  private findIndexOfProductById(productId: TProductId) {
-    return this.products.findIndex(product => product.productId === productId);
-  }
-  private pushNewProductToOrder(newProduct: OrderedProduct) {
-    this.products.push(newProduct)
-  }
-  private removeProductFromOrder(idx: number) {
-    this.products = [...this.products.filter((_, index) => index !== idx)];
-  }
-  private clearAllProducts() {
-    this.products = [];
-    this.updateUserOrderSocket();
-  }
-  private updateProductQuantity({ idx, inc }: { idx: number, inc: boolean }) {
-    this.products[idx] = ({
-      ...this.products[idx],
-      quantity: inc ? this.products[idx].quantity++ : this.products[idx].quantity--,
-    });
-    if (this.products[idx].quantity === 0) this.removeProductFromOrder(idx);
-    this.updateUserOrderSocket();
-  }
-  private updateUserOrderSocket() {
-    onUserCheckoutOrderUpdate(this.products);
-  }
-
-  public async getOrderedProducts() {
-    await Promise.resolve();
-    return this.products;
-  }
-
-  public async addProductToOrder(newProduct: OrderedProduct) {
-    const idx = this.findIndexOfProductById(newProduct.productId);
-    const foundIdxPredicate = idx > (-1);
-    await Promise.resolve();
-    return foundIdxPredicate ? this.updateProductQuantity({ idx, inc: true }) : this.pushNewProductToOrder(newProduct);
-  };
-
-  public async decreaseProductInOrder(productId: TProductId) {
-    const idx = this.findIndexOfProductById(productId);
-    this.updateProductQuantity({ idx, inc: false });
-    await Promise.resolve();
-    return;
-  };
-
-  public async clearAllProductsFromOrder() {
-    this.clearAllProducts();
-    await Promise.resolve();
-    return;
-  }
+export interface UserOrder {
+  userId: string;
+  products: OrderedProduct[];
 }
 
-const allOrders = [] as Array<UserOrder>;
-const getOrdersByUserId = (userId: TUserId) => allOrders.find(order => order.userId === userId);
-const pushNewOrderWithUserId = (order: UserOrder) => allOrders.push(order);
+export const allOrders = [] as Array<UserOrder>;
+export const getOrdersByUserId = async ({ userId }: GetCheckoutDTO_Req) => allOrders.find(order => order.userId === userId);
+export const pushNewOrderWithUserId = async ({ order }: Record<'order', UserOrder>) => allOrders.push(order);
 
-export {
-  getOrdersByUserId,
-  pushNewOrderWithUserId,
+interface IAddProductToOrderParams {
+  order: UserOrder;
+  newProduct: OrderedProduct
 }
+export async function addProductToOrder({ order, newProduct }: IAddProductToOrderParams) {
+  const idx = findIndexOfProductById(order, newProduct.productId);
+  const foundIdxPredicate = idx > (-1);
+  return foundIdxPredicate ? updateProductQuantity(order, { idx, inc: true }) : order.products.push({ ...newProduct, quantity: 1 })
+};
+
+interface IDecreaseProductInOrderParams {
+  order: UserOrder;
+  product: OrderedProduct
+}
+export async function decreaseProductInOrder({ order, product }: IDecreaseProductInOrderParams) {
+  const idx = findIndexOfProductById(order, product.productId);
+  updateProductQuantity(order, { idx, inc: false });
+  return;
+};

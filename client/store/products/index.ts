@@ -1,12 +1,10 @@
 import { AnyAction } from "redux";
-import { IProductsState, PRODUCT_REDUCER_ACTION_TYPES } from "./types";
+import { IProductsState, SET_PRODUCTS, SET_PRODUCT_GROUPS } from "./types";
 
 const initialState: IProductsState = {
   allProducts: [],
   productGroups: [],
 };
-
-const { SET_PRODUCTS, SET_PRODUCT_GROUPS } = PRODUCT_REDUCER_ACTION_TYPES;
 
 const productsReducer = (state = initialState, action: AnyAction): IProductsState => {
   switch (action.type) {

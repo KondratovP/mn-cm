@@ -6,7 +6,17 @@ import { exchangeReducer } from "./exchange";
 import { productsReducer } from "./products";
 import { checkoutReducer } from "./checkout";
 
-export let store: Store<any> | undefined;
+import { IExchangeState } from './exchange/types';
+import { IProductsState } from './products/types';
+import { IUserOrderState } from './checkout/types';
+
+export interface IAppState {
+  exchangeReducer: IExchangeState;
+  productsReducer: IProductsState;
+  checkoutReducer: IUserOrderState;
+}
+
+export let store: Store<IAppState> | undefined;
 
 const reducers = {
   exchangeReducer,

@@ -6,7 +6,7 @@ export function onExchangeValueChange({ oldValue, newValue }: Record<'oldValue' 
 };
 
 export function onUserCheckoutOrderUpdate(newUserOrder: Array<OrderedProduct>) {
-  io.emit('userOrderUpdate', ({ ...newUserOrder }));
+  io.emit('userOrderUpdate', ([...newUserOrder]));
 };
 
 export function onAvailableProductListUpdate(productList: Array<IProduct>) {

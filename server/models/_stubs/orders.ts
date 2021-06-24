@@ -5,4 +5,4 @@ export interface IOrder {
 }
 const allOrders = [] as Array<IOrder>;
 
-export const getOrderById = (userId: TUserId) => allOrders.filter(order => order[userId] === userId)[0];
+export const getOrderById = (userId: TUserId) => allOrders.filter(order => order.userId === userId)[0];

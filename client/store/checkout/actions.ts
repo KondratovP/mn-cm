@@ -1,9 +1,22 @@
 import { Dispatch } from "redux";
 import { ThunkDispatch } from "redux-thunk";
 import api from "client/api";
-import { USER_ORDER_ACTION_TYPES } from "./types";
+import { SET_USER_ORDER, UPDATE_USER_ORDER } from "./types";
+import { OrderedProduct } from "common/types";
 
-const { SET_USER_ORDER } = USER_ORDER_ACTION_TYPES;
+export const setUserOrder = (userOrder: any) => {
+  return ({
+    type: SET_USER_ORDER,
+    payload: userOrder
+  })
+}
+
+export const updateUserOrder = (products: OrderedProduct[]) => {
+  return ({
+    type: UPDATE_USER_ORDER,
+    payload: products
+  })
+}
 
 export const createCurrentUserOrder = (userId: string) => {
   return async (dispatch: ThunkDispatch<any, any, any>) => {
@@ -15,9 +28,7 @@ export const createCurrentUserOrder = (userId: string) => {
 export const getCurrentUserOrder = (userId: string) => {
   return async (dispatch: Dispatch<any>) => {
     const userOrder = await api.checkout.getOrderByUserId(userId);
-    return dispatch({
-      type: SET_USER_ORDER,
-      payload: userOrder
-    })
+    console.table({ userOrder });
+    return dispatch(setUserOrder(userOrder));
   }
 }

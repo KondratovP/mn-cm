@@ -1,12 +1,12 @@
 import api from "client/api";
 import { Dispatch } from "redux";
-import { PRODUCT_REDUCER_ACTION_TYPES } from "./types";
+import { SET_PRODUCTS, SET_PRODUCT_GROUPS } from "./types";
 
-const { SET_PRODUCTS, SET_PRODUCT_GROUPS } = PRODUCT_REDUCER_ACTION_TYPES;
+const { getProducts, getProductGroups } = api.products;
 
 export const getCurrentAvailableProducts = () => {
   return async (dispatch: Dispatch<any>) => {
-    const products = await api.products.getProducts();
+    const products = await getProducts();
     return dispatch({
       type: SET_PRODUCTS,
       payload: products
@@ -16,7 +16,7 @@ export const getCurrentAvailableProducts = () => {
 
 export const getCurrentAvailableProductGroups = () => {
   return async (dispatch: Dispatch<any>) => {
-    const productGroups = await api.products.getProductGroups();
+    const productGroups = await getProductGroups();
     return dispatch({
       type: SET_PRODUCT_GROUPS,
       payload: productGroups

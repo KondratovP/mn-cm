@@ -1,80 +1,34 @@
 import { getNames, getProducts } from "../_stubs";
-import { IProductGroup, IProduct, TIncomingProduct, TProductNames } from "../types";
-import { onAvailableProductListUpdate } from "../../socket-handler";
+import { IProduct, TIncomingProduct } from "../types";
+import { mapSourceProduct, retrieveProductGroups } from "./helpers";
 
-export class Products {
-  private allProducts: Array<IProduct> = [];
-  private availableGroups: Array<IProductGroup> = [];
-  private static names = getNames();
-  private static products = getProducts();
-  constructor() { }
+export type Products = IProduct[];
 
-  private mapSourceProduct(product: TIncomingProduct, names: TProductNames): IProduct {
-    return ({
-      usdPrice: product.C,
-      quantity: product.P,
-      // @ts-ignore
-      groupId: names[product.G],
-      // @ts-ignore
-      productId: names[product.G]['B'][product.T],
-      // @ts-ignore
-      groupName: names[product.G]['G'],
-      // @ts-ignore
-      productTitle: names[product.G]['B'][product.T]['N'],
-    });
-  }
-  private retrieveProducts() {
-    const products = { ...Products.products };
-    const names = { ...Products.names }
-    this.allProducts = products.Value.Goods.map(
-      product => this.mapSourceProduct(product, names)
-    );
+let allProducts = [] as Products;
+
+async function retrieveProducts() {
+  const products = { ...getProducts() };
+  const names = { ...getNames() };
+  allProducts = products.Value.Goods.map(
+    (product: TIncomingProduct) => mapSourceProduct(product, names)
+  );
+};
+
+
+export const getAllProducts = async () => allProducts;
+
+export const getAllProductGroups = async () => retrieveProductGroups(await getAllProducts());
+
+interface IChangeProductQuantityParams { products: IProduct[], productId: number, dec: boolean }
+export const changeProductQuantity = async ({ products, productId, dec }: IChangeProductQuantityParams) => {
+  const idx = products.findIndex(product => product.productId === productId);
+  products[idx] = {
+    ...products[idx],
+    quantity: (dec && products[idx].quantity > 0)
+      ? --products[idx].quantity
+      : !dec && ++products[idx].quantity || products[idx].quantity,
   };
-  private retrieveProductGroups() {
-    this.availableGroups = this.allProducts.map(
-      ({ groupId, groupName }) => ({
-        groupId,
-        groupName,
-      }));
-  }
-  private changeProductQuantity(productId: number, dec: boolean) {
-    const idx = this.allProducts.findIndex(product => product.productId === productId);
-    this.allProducts[idx] = {
-      ...this.allProducts[idx],
-      quantity: (dec && this.allProducts[idx].quantity > 0)
-        ? this.allProducts[idx].quantity - 1
-        : !dec && this.allProducts[idx].quantity + 1 || this.allProducts[idx].quantity,
-    };
-  };
-  private updateAvailableProductListSocket() {
-    onAvailableProductListUpdate(this.allProducts);
-  }
+  return;
+};
 
-  public async getAvailableProducts() {
-    this.retrieveProducts();
-    await Promise.resolve();
-    return this.allProducts;
-  }
-
-  public async getAvailableProductGroups() {
-    this.retrieveProducts();
-    this.retrieveProductGroups();
-    await Promise.resolve();
-    return this.availableGroups;
-  }
-
-  public async decreaseProductQuantity(productId: number) {
-    this.changeProductQuantity(productId, true);
-    await Promise.resolve();
-    return this.updateAvailableProductListSocket();
-  }
-
-  public async increaseProductQuantity(productId: number) {
-    this.changeProductQuantity(productId, false);
-    this.retrieveProducts();
-    await Promise.resolve();
-    return this.updateAvailableProductListSocket();
-  }
-}
-
-export const allProducts = new Products();
+(function initProducts() { retrieveProducts() })();
