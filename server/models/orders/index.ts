@@ -1,4 +1,5 @@
 import { GetCheckoutDTO_Req } from "common/types/api-interaction-interfaces";
+import { changeProductQuantity } from "../products";
 import { OrderedProduct } from "../types";
 import { findIndexOfProductById, updateProductQuantity } from "./helpers";
 
@@ -9,7 +10,9 @@ export interface UserOrder {
 
 export const allOrders = [] as Array<UserOrder>;
 export const getOrdersByUserId = async ({ userId }: GetCheckoutDTO_Req) => allOrders.find(order => order.userId === userId);
-export const pushNewOrderWithUserId = async ({ order }: Record<'order', UserOrder>) => allOrders.push(order);
+export const pushNewOrderWithUserId = async ({ order }: Record<'order', UserOrder>) => {
+  if (!allOrders.find(ord => ord.userId === order.userId)) allOrders.push(order);
+};
 
 interface IAddProductToOrderParams {
   order: UserOrder;
@@ -18,6 +21,7 @@ interface IAddProductToOrderParams {
 export async function addProductToOrder({ order, newProduct }: IAddProductToOrderParams) {
   const idx = findIndexOfProductById(order, newProduct.productId);
   const foundIdxPredicate = idx > (-1);
+  changeProductQuantity({ productId: newProduct.productId, dec: true });
   return foundIdxPredicate ? updateProductQuantity(order, { idx, inc: true }) : order.products.push({ ...newProduct, quantity: 1 })
 };
 
@@ -28,5 +32,6 @@ interface IDecreaseProductInOrderParams {
 export async function decreaseProductInOrder({ order, product }: IDecreaseProductInOrderParams) {
   const idx = findIndexOfProductById(order, product.productId);
   updateProductQuantity(order, { idx, inc: false });
+  changeProductQuantity({ productId: product.productId, dec: false });
   return;
 };

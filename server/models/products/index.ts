@@ -14,13 +14,15 @@ async function retrieveProducts() {
   );
 };
 
+retrieveProducts();
 
 export const getAllProducts = async () => allProducts;
 
 export const getAllProductGroups = async () => retrieveProductGroups(await getAllProducts());
 
-interface IChangeProductQuantityParams { products: IProduct[], productId: number, dec: boolean }
-export const changeProductQuantity = async ({ products, productId, dec }: IChangeProductQuantityParams) => {
+interface IChangeProductQuantityParams { productId: number, dec: boolean }
+export const changeProductQuantity = async ({ productId, dec }: IChangeProductQuantityParams) => {
+  const products = await getAllProducts();
   const idx = products.findIndex(product => product.productId === productId);
   products[idx] = {
     ...products[idx],
@@ -30,5 +32,3 @@ export const changeProductQuantity = async ({ products, productId, dec }: IChang
   };
   return;
 };
-
-(function initProducts() { retrieveProducts() })();

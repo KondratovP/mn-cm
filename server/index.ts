@@ -37,7 +37,6 @@ nextApp.prepare().then(() => {
   buildRoutes(app);
 
   app.all('*', async (req: any, res: any) => {
-
     nextHandler(req, res)
   })
 

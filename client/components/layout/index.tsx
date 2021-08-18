@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   Text,
 } from "@chakra-ui/react";
-import ExchangeValueIndicator from "../exchange-value-indicator";
+import ExchangeValueIndicator from "../common/exchange-value-indicator";
 
 const NavLink: React.FC<{ children: ReactNode; to: string }> = ({
   children,
@@ -30,38 +30,34 @@ const NavLink: React.FC<{ children: ReactNode; to: string }> = ({
   </NextLink>
 );
 
-export default function Navigation() {
-  return (
-    <>
-      <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
-        <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <Flex
-            width="100%"
-            spacing={8}
-            alignItems={"center"}
-            justifyContent="space-between"
-          >
-            <HStack
-              as={"nav"}
-              spacing={4}
-              display={{ base: "none", md: "flex" }}
-            >
-              <NavLink to="/">Каталог</NavLink>
-              <NavLink to="checkout">{"Корзина"}</NavLink>
-            </HStack>
+const Navigation = () => (
+  <>
+    <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
+      <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+        <Flex
+          width="100%"
+          spacing={8}
+          alignItems={"center"}
+          justifyContent="space-between"
+        >
+          <HStack as={"nav"} spacing={4}>
+            <NavLink to="/">Каталог</NavLink>
+            <NavLink to="checkout">{"Корзина"}</NavLink>
+          </HStack>
 
-            <Text
-              alignItems={"center"}
-              as="p"
-              color={useColorModeValue("gray.700", "gray.200")}
-              fontSize="sm"
-              justifyContent="center"
-            >
-              курс $ <ExchangeValueIndicator />
-            </Text>
-          </Flex>
+          <Text
+            alignItems={"center"}
+            as="p"
+            color={useColorModeValue("gray.700", "gray.200")}
+            fontSize="sm"
+            justifyContent="center"
+          >
+            курс $ <ExchangeValueIndicator />
+          </Text>
         </Flex>
-      </Box>
-    </>
-  );
-}
+      </Flex>
+    </Box>
+  </>
+);
+
+export default Navigation;

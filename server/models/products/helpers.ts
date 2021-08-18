@@ -23,8 +23,7 @@ export const retrieveProductGroups = (products: IProduct[]): IProductGroup[] => 
     groupName: string
   }[];
   groups.forEach((group) => {
-    if (!distinct.find(gr => gr.groupId === group.groupId))
-      distinct.push(group)
+    (!distinct.find(gr => gr.groupId === group.groupId)) && distinct.push(group)
   });
   return distinct;
 };
