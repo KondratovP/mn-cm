@@ -1,13 +1,18 @@
 import React from "react";
 import socketIOClient from "socket.io-client";
-import { Provider } from "react-redux";
-import { IAppState, useStore } from "../client/store";
-import { ThemeProvider, theme, CSSReset } from "@chakra-ui/react";
-import { SOCKET_ENDPOINT } from "../client/consts/end-points";
+import {
+  ThemeProvider,
+  theme,
+  CSSReset,
+  ChakraProvider,
+} from "@chakra-ui/react";
+import { SOCKET_ENDPOINT } from "../client/consts/endpoints";
 import { onSocketExchangeValueChange } from "../client/api/socket";
 import Navigation from "../client/components/layout";
+import { useExchange } from "client/hooks/useExchangeValue";
 
-export const socket = socketIOClient(SOCKET_ENDPOINT);
+const initSocket = () => socketIOClient(SOCKET_ENDPOINT);
+export const socket = initSocket();
 
 export default function App({
   Component,
@@ -16,16 +21,18 @@ export default function App({
   Component: React.ComponentType;
   pageProps: Record<string, any>;
 }) {
-  const store = useStore(pageProps.initialReduxState as IAppState);
-  onSocketExchangeValueChange(store);
+  const { getData } = useExchange();
+  onSocketExchangeValueChange(getData);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CSSReset />
-      <Provider store={store as any}>
-        <Navigation />
-        <Component {...pageProps} />
-      </Provider>
-    </ThemeProvider>
+    <ChakraProvider>
+      <ThemeProvider theme={theme}>
+        <CSSReset />
+        <>
+          <Navigation />
+          <Component {...pageProps} />
+        </>
+      </ThemeProvider>
+    </ChakraProvider>
   );
 }

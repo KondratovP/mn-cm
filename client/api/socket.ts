@@ -1,9 +1,11 @@
-import { assignCurrExchangeValue, assignPrevExchangeValue } from "client/store/exchange/actions";
 import { socket } from "../../pages/_app";
 
-export function onSocketExchangeValueChange(store: any) {
+export function onSocketExchangeValueChange(setExchange: (cb: <T>(prevState: T) => T) => void) {
   socket.on("exchangeValueChange", ({ newValue, oldValue }) => {
-    store.dispatch(assignCurrExchangeValue(newValue));
-    store.dispatch(assignPrevExchangeValue(oldValue));
+    setExchange(prevState => ({
+      ...prevState,
+      prevExchangeValue: oldValue,
+      currentExchangeValue: newValue
+    }));
   })
 };

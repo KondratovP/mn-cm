@@ -1,14 +1,14 @@
-import { getAllProducts, changeProductQuantity } from '../../models/products';
+import { changeProductQuantity } from '../../models/products';
 import { addProductToOrder, decreaseProductInOrder, getOrdersByUserId, pushNewOrderWithUserId, UserOrder } from '../../models/orders';
 import { GetCheckoutDTO_Req, PostProductsDTO, PutCheckoutDTO, DeleteCheckoutDTO } from 'common/types';
 
 export const productsPostAction = async ({ productId }: PostProductsDTO) => {
-  changeProductQuantity({ products: await getAllProducts(), productId, dec: false });
+  changeProductQuantity({ productId, dec: false });
   return true;
 };
 
 export const productsDeleteAction = async ({ productId }: PostProductsDTO) => {
-  changeProductQuantity({ products: await getAllProducts(), productId, dec: true });
+  changeProductQuantity({ productId, dec: true });
   return true;
 };
 

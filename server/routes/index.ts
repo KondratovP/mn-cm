@@ -3,7 +3,7 @@ import { handler } from './helpers';
 import { routeConfig } from './config'
 
 export function buildRoutes<T extends Express = Express>(app: T) {
-  routeConfig.map(({
+  return routeConfig.map(({
     method,
     route,
     data,
